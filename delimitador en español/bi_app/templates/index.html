@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BI Platform</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   TEMAS
+═══════════════════════════════════════════════════════ */
+:root{
+  --fondo:#06101c;--fondo2:#0b1929;--fondo3:#0f2035;
+  --tarjeta:#0d1e30;--tarjeta2:#132639;
+  --borde:rgba(255,255,255,0.07);--borde2:rgba(56,189,248,0.25);
+  --acento:#38bdf8;--acento2:#6366f1;
+  --verde:#10b981;--ambar:#f59e0b;--rojo:#ef4444;
+  --texto:#e2e8f0;--apagado:#475569;--apagado2:#94a3b8;
+  --ancho-sb:224px;--radio:10px;--sombra:0 4px 24px rgba(0,0,0,.4);
+}
+.tema-rojo{
+  --fondo:#0f0505;--fondo2:#1a0808;--fondo3:#220b0b;
+  --tarjeta:#1c0909;--tarjeta2:#250d0d;
+  --borde:rgba(255,255,255,0.07);--borde2:rgba(239,68,68,0.3);
+  --acento:#ef4444;--acento2:#f97316;
+  --verde:#22c55e;--ambar:#eab308;--rojo:#f87171;
+  --texto:#fef2f2;--apagado:#6b2b2b;--apagado2:#fca5a5;
+}
+.tema-pro{
+  --fondo:#f8fafc;--fondo2:#f1f5f9;--fondo3:#e2e8f0;
+  --tarjeta:#ffffff;--tarjeta2:#f8fafc;
+  --borde:rgba(0,0,0,0.09);--borde2:rgba(99,102,241,0.3);
+  --acento:#6366f1;--acento2:#0ea5e9;
+  --verde:#059669;--ambar:#d97706;--rojo:#dc2626;
+  --texto:#0f172a;--apagado:#94a3b8;--apagado2:#64748b;
+  --sombra:0 2px 12px rgba(0,0,0,.08);
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--fondo);color:var(--texto);
+     display:flex;height:100vh;overflow:hidden;transition:background .25s,color .25s}
+
+/* ═══════════════════════════════════════════════════════
+   BARRA LATERAL
+═══════════════════════════════════════════════════════ */
+#sb{width:var(--ancho-sb);background:var(--fondo2);border-right:1px solid var(--borde);
+    display:flex;flex-direction:column;flex-shrink:0;z-index:100}
+.logo{padding:20px 16px 16px;border-bottom:1px solid var(--borde);display:flex;align-items:center;gap:11px}
+.logo-marca{width:32px;height:32px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--acento),var(--acento2));
+  border-radius:7px;display:flex;align-items:center;justify-content:center}
+.logo-marca svg{width:16px;height:16px}
+.logo-nombre{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;line-height:1.15}
+.logo-sub{font-size:10px;color:var(--apagado2);font-weight:400;letter-spacing:.3px}
+nav{flex:1;padding:10px 8px;overflow-y:auto}
+.seccion-nav{font-size:10px;font-weight:600;color:var(--apagado);
+  letter-spacing:1.4px;text-transform:uppercase;padding:12px 8px 5px}
+.item-nav{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;
+  cursor:pointer;font-size:13px;font-weight:500;color:var(--apagado2);
+  transition:all .18s;margin-bottom:1px;user-select:none}
+.item-nav:hover{background:var(--tarjeta);color:var(--texto)}
+.item-nav.activo{
+  background:linear-gradient(90deg,rgba(56,189,248,.12),rgba(99,102,241,.07));
+  color:var(--acento);border-left:2px solid var(--acento)}
+.tema-rojo .item-nav.activo{background:linear-gradient(90deg,rgba(239,68,68,.13),rgba(249,115,22,.07))}
+.tema-pro  .item-nav.activo{background:linear-gradient(90deg,rgba(99,102,241,.1),rgba(14,165,233,.07))}
+.item-nav .icono{width:18px;height:18px;flex-shrink:0;opacity:.7}
+.item-nav.activo .icono{opacity:1}
+.pie-sb{padding:12px 10px;border-top:1px solid var(--borde)}
+.fila-temas{display:flex;gap:5px}
+.btn-tema{flex:1;padding:6px 0;border-radius:6px;border:1px solid var(--borde);
+  background:var(--tarjeta);color:var(--apagado2);font-size:11px;font-weight:600;
+  cursor:pointer;font-family:'Inter',sans-serif;transition:all .18s;text-align:center}
+.btn-tema:hover{border-color:var(--acento);color:var(--acento)}
+.btn-tema.activo{background:var(--acento);color:#fff;border-color:var(--acento)}
+
+/* ═══════════════════════════════════════════════════════
+   ÁREA PRINCIPAL
+═══════════════════════════════════════════════════════ */
+#principal{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#barra-superior{height:50px;background:var(--fondo2);border-bottom:1px solid var(--borde);
+  display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0}
+.titulo-barra{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px}
+.insignia{font-size:11px;background:rgba(56,189,248,.1);color:var(--acento);
+  border:1px solid rgba(56,189,248,.2);padding:3px 9px;border-radius:20px}
+#estado-ds{margin-left:auto;font-size:12px;color:var(--apagado2);display:flex;align-items:center;gap:6px}
+.punto-estado{width:6px;height:6px;border-radius:50%;background:var(--apagado);flex-shrink:0}
+.punto-estado.activo{background:var(--verde);box-shadow:0 0 7px var(--verde);animation:pulsar 2s infinite}
+#contenido{flex:1;overflow-y:auto;padding:20px}
+
+/* ═══════════════════════════════════════════════════════
+   PÁGINAS Y ANIMACIONES
+═══════════════════════════════════════════════════════ */
+.pagina{display:none}
+.pagina.activa{display:block;animation:entrar .3s cubic-bezier(.16,1,.3,1)}
+@keyframes entrar{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pulsar{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes girar{to{transform:rotate(360deg)}}
+@keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes brillar{0%,100%{box-shadow:0 0 0 rgba(56,189,248,0)}50%{box-shadow:0 0 18px rgba(56,189,248,.25)}}
+@keyframes aparecerEscala{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+@keyframes deslizarArriba{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* ═══════════════════════════════════════════════════════
+   TARJETAS
+═══════════════════════════════════════════════════════ */
+.tarjeta{background:var(--tarjeta);border:1px solid var(--borde);border-radius:var(--radio);
+  padding:18px;margin-bottom:16px;transition:border-color .18s,transform .18s,box-shadow .18s;
+  animation:deslizarArriba .4s cubic-bezier(.16,1,.3,1) both}
+.tarjeta:hover{border-color:var(--borde2);transform:translateY(-1px);box-shadow:var(--sombra)}
+.titulo-tarjeta{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--texto)}
+.punto{width:7px;height:7px;border-radius:50%;background:var(--acento);flex-shrink:0}
+
+/* ═══════════════════════════════════════════════════════
+   KPI
+═══════════════════════════════════════════════════════ */
+.grilla-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--tarjeta);border:1px solid var(--borde);border-radius:var(--radio);
+  padding:16px;position:relative;overflow:hidden;cursor:default;
+  transition:all .22s cubic-bezier(.16,1,.3,1);
+  animation:aparecerEscala .4s cubic-bezier(.16,1,.3,1) both}
+.kpi:hover{border-color:var(--borde2);transform:translateY(-3px) scale(1.02);
+  box-shadow:0 8px 32px rgba(0,0,0,.35);animation:brillar 2s ease infinite}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--acento),var(--acento2));
+  transition:height .2s}
+.kpi:hover::before{height:3px}
+.kpi-etiq{font-size:10px;font-weight:600;color:var(--apagado2);letter-spacing:.6px;
+  text-transform:uppercase;margin-bottom:8px}
+.kpi-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;line-height:1;
+  background:linear-gradient(135deg,var(--acento),var(--acento2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.kpi-sub{font-size:11px;color:var(--apagado2);margin-top:5px}
+.kpi-ico{position:absolute;top:13px;right:13px;opacity:.15;animation:flotar 3s ease infinite}
+.kpi-ico svg{width:22px;height:22px}
+
+/* ═══════════════════════════════════════════════════════
+   CUADRÍCULAS
+═══════════════════════════════════════════════════════ */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* ═══════════════════════════════════════════════════════
+   BOTONES
+═══════════════════════════════════════════════════════ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;
+  font-size:13px;font-weight:500;cursor:pointer;border:none;
+  font-family:'Inter',sans-serif;transition:all .18s;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);
+  transition:background .18s;border-radius:inherit}
+.btn:hover::after{background:rgba(255,255,255,.08)}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+.btn-primario{background:linear-gradient(135deg,var(--acento),var(--acento2));color:#fff;
+  box-shadow:0 2px 10px rgba(56,189,248,.2)}
+.btn-primario:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(56,189,248,.35)}
+.btn-secundario{background:var(--tarjeta2);color:var(--texto);border:1px solid var(--borde)}
+.btn-secundario:hover{border-color:var(--acento);color:var(--acento)}
+.btn-peligro{background:rgba(239,68,68,.1);color:var(--rojo);border:1px solid rgba(239,68,68,.2)}
+.btn-peligro:hover{background:rgba(239,68,68,.18)}
+.btn-exito{background:rgba(16,185,129,.1);color:var(--verde);border:1px solid rgba(16,185,129,.22)}
+.btn-exito:hover{background:rgba(16,185,129,.18)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-bloque{width:100%;justify-content:center;margin-top:8px}
+
+/* ═══════════════════════════════════════════════════════
+   FORMULARIOS
+═══════════════════════════════════════════════════════ */
+select,input[type=text],input[type=number]{
+  background:var(--tarjeta2);border:1px solid var(--borde);color:var(--texto);
+  border-radius:7px;padding:8px 11px;font-size:13px;font-family:'Inter',sans-serif;
+  outline:none;transition:border-color .18s,box-shadow .18s;width:100%}
+select:focus,input:focus{border-color:var(--acento);box-shadow:0 0 0 3px rgba(56,189,248,.12)}
+select option{background:var(--fondo2)}
+.etiq-campo{font-size:11px;font-weight:600;color:var(--apagado2);margin-bottom:5px;display:block;letter-spacing:.3px}
+.grupo-campo{margin-bottom:12px}
+
+/* ═══════════════════════════════════════════════════════
+   TABLA
+═══════════════════════════════════════════════════════ */
+.contenedor-tabla{overflow-x:auto;max-height:400px;border-radius:7px;border:1px solid var(--borde)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--fondo3);padding:9px 12px;text-align:left;font-weight:600;
+  font-size:10px;color:var(--apagado2);letter-spacing:.6px;text-transform:uppercase;
+  position:sticky;top:0;z-index:1;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--borde);transition:background .12s}
+tbody tr:hover{background:var(--tarjeta2)}
+tbody td{padding:8px 12px;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.etiqueta{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.etiq-num{background:rgba(56,189,248,.1);color:var(--acento);border:1px solid rgba(56,189,248,.2)}
+.etiq-cat{background:rgba(99,102,241,.1);color:#a5b4fc;border:1px solid rgba(99,102,241,.2)}
+
+/* ═══════════════════════════════════════════════════════
+   ZONA DE CARGA
+═══════════════════════════════════════════════════════ */
+.zona-carga{border:2px dashed var(--borde2);border-radius:var(--radio);
+  padding:44px 20px;text-align:center;cursor:pointer;transition:all .22s;
+  background:rgba(56,189,248,.02);animation:flotar 4s ease infinite}
+.zona-carga:hover,.zona-carga.sobre{border-color:var(--acento);background:rgba(56,189,248,.06);
+  animation:none;transform:scale(1.01)}
+.icono-carga{margin:0 auto 14px;width:48px;height:48px;color:var(--acento);opacity:.7}
+.icono-carga svg{width:100%;height:100%}
+.titulo-carga{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px;margin-bottom:6px}
+.subtitulo-carga{color:var(--apagado2);font-size:13px}
+
+/* ═══════════════════════════════════════════════════════
+   BARRAS DE PROGRESO
+═══════════════════════════════════════════════════════ */
+.barra-wrap{margin-bottom:9px}
+.barra-fila{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;color:var(--apagado2)}
+.barra-pista{height:5px;background:var(--fondo3);border-radius:10px;overflow:hidden}
+.barra-relleno{height:100%;border-radius:10px;transition:width .9s cubic-bezier(.16,1,.3,1);
+  background:linear-gradient(90deg,var(--ambar),var(--rojo))}
+.barra-relleno.calidad{background:linear-gradient(90deg,var(--acento),var(--verde))}
+.barra-relleno.importancia{background:linear-gradient(90deg,var(--acento2),var(--acento))}
+
+/* ═══════════════════════════════════════════════════════
+   ALERTAS
+═══════════════════════════════════════════════════════ */
+.alerta{padding:10px 14px;border-radius:7px;font-size:13px;margin-bottom:12px;
+  display:flex;align-items:flex-start;gap:8px;animation:deslizarArriba .3s ease}
+.alerta svg{width:15px;height:15px;flex-shrink:0;margin-top:1px}
+.alerta-info{background:rgba(56,189,248,.07);border:1px solid rgba(56,189,248,.2);color:var(--acento)}
+.alerta-exito{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);color:var(--verde)}
+.alerta-aviso{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:var(--ambar)}
+.alerta-error{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:var(--rojo)}
+
+/* ═══════════════════════════════════════════════════════
+   INSIGHT / CHIPS DE MÉTRICAS
+═══════════════════════════════════════════════════════ */
+.insight{background:var(--fondo3);border-left:3px solid var(--acento);
+  padding:10px 14px;border-radius:0 7px 7px 0;font-size:13px;margin-bottom:8px;
+  transition:border-left-color .2s}
+.fila-metricas{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.chip-metrica{background:var(--tarjeta2);border:1px solid var(--borde);border-radius:7px;
+  padding:7px 12px;font-size:12px;display:flex;align-items:center;gap:5px;color:var(--apagado2)}
+.chip-metrica strong{font-family:'Space Grotesk',sans-serif;font-size:14px;color:var(--texto)}
+
+/* ═══════════════════════════════════════════════════════
+   CARGANDO
+═══════════════════════════════════════════════════════ */
+.cargando{display:flex;align-items:center;gap:10px;color:var(--apagado2);font-size:13px;padding:24px 0}
+.spinner{width:17px;height:17px;border:2px solid var(--borde);
+  border-top-color:var(--acento);border-radius:50%;animation:girar .65s linear infinite}
+
+/* ═══════════════════════════════════════════════════════
+   ALTERNADOR DE OPCIONES
+═══════════════════════════════════════════════════════ */
+.grupo-toggle{display:flex;gap:3px;background:var(--fondo3);padding:3px;border-radius:7px;width:fit-content}
+.opcion-toggle{padding:6px 14px;border-radius:5px;border:none;cursor:pointer;font-size:12px;
+  font-weight:500;background:transparent;color:var(--apagado2);transition:all .18s;font-family:'Inter',sans-serif}
+.opcion-toggle.activo{background:var(--tarjeta);color:var(--acento);font-weight:600}
+
+/* ═══════════════════════════════════════════════════════
+   SELECCIÓN MÚLTIPLE
+═══════════════════════════════════════════════════════ */
+.multi-sel{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:5px;max-height:190px;overflow-y:auto}
+.item-check{display:flex;align-items:center;gap:8px;padding:7px 10px;
+  background:var(--tarjeta2);border:1px solid var(--borde);border-radius:6px;
+  cursor:pointer;font-size:12px;color:var(--apagado2);transition:all .18s}
+.item-check:hover{border-color:var(--acento);color:var(--texto)}
+.item-check input{accent-color:var(--acento);flex-shrink:0}
+.etiq-tipo{margin-left:auto;font-size:9px;padding:1px 5px;border-radius:10px;font-weight:700}
+
+/* ═══════════════════════════════════════════════════════
+   SIN DATOS
+═══════════════════════════════════════════════════════ */
+.sin-datos{text-align:center;padding:60px 20px;color:var(--apagado2)}
+.sin-datos h3{font-family:'Space Grotesk',sans-serif;font-size:17px;margin-bottom:8px;font-weight:600}
+.sin-datos p{font-size:13px;color:var(--apagado)}
+
+/* ═══════════════════════════════════════════════════════
+   PREDICCIÓN MANUAL
+═══════════════════════════════════════════════════════ */
+.grilla-manual{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+.resultado-prediccion{
+  background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(99,102,241,.08));
+  border:1px solid var(--borde2);border-radius:10px;padding:20px;
+  text-align:center;animation:aparecerEscala .4s cubic-bezier(.16,1,.3,1)}
+.valor-predicho{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:36px;
+  background:linear-gradient(135deg,var(--acento),var(--acento2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:8px 0}
+.etiq-prediccion{font-size:11px;font-weight:600;color:var(--apagado2);text-transform:uppercase;letter-spacing:.6px}
+.tabla-probabilidades{width:100%;margin-top:12px}
+.tabla-probabilidades td{padding:5px 8px;font-size:12px}
+.barra-prob{height:6px;background:var(--fondo3);border-radius:10px;overflow:hidden;margin-top:3px}
+.relleno-prob{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--acento2),var(--acento));
+  transition:width .8s cubic-bezier(.16,1,.3,1)}
+
+/* ═══════════════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════════════ */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--fondo2)}
+::-webkit-scrollbar-thumb{background:var(--tarjeta2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--apagado)}
+
+@media(max-width:860px){.g2,.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ══════════ ÍCONOS SVG INLINE ══════════ -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="ico-datos"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></symbol>
+  <symbol id="ico-stats"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></symbol>
+  <symbol id="ico-corr"      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+  <symbol id="ico-cat"       viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3z"/><path d="M3 10h12v4H3z"/><path d="M3 17h8v4H3z"/></symbol>
+  <symbol id="ico-ml"        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></symbol>
+  <symbol id="ico-panel"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></symbol>
+  <symbol id="ico-exportar"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="ico-subir"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+  <symbol id="ico-filas"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4"/><path d="M9 21H5a2 2 0 0 1-2-2v-4"/><path d="M21 3h-4"/><path d="M21 21h-4"/><line x1="3" y1="12" x2="21" y2="12"/></symbol>
+  <symbol id="ico-numerico"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></symbol>
+  <symbol id="ico-etiqueta"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></symbol>
+  <symbol id="ico-aviso"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+  <symbol id="ico-ok"        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="ico-memoria"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h.01M10 12h.01M14 12h.01M18 12h.01"/></symbol>
+  <symbol id="ico-actualizar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></symbol>
+  <symbol id="ico-eliminar"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></symbol>
+  <symbol id="ico-copiar"    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="ico-ejecutar"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></symbol>
+  <symbol id="ico-guardar"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+  <symbol id="ico-archivo"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></symbol>
+  <symbol id="ico-x"         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="ico-info"      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+  <symbol id="ico-logo"      viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+  <symbol id="ico-manual"    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+  <symbol id="ico-gerencial" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></symbol>
+</svg>
+
+<!-- ══════════ BARRA LATERAL ══════════ -->
+<div id="sb">
+  <div class="logo">
+    <div class="logo-marca"><svg><use href="#ico-logo"/></svg></div>
+    <div><div class="logo-nombre">BI Platform</div><div class="logo-sub">Inteligencia de Negocios</div></div>
+  </div>
+  <nav>
+    <div class="seccion-nav">Análisis</div>
+    <div class="item-nav activo" id="nav-datos"       onclick="mostrarPagina('datos',this)">       <svg class="icono"><use href="#ico-datos"/></svg>    <span>Datos y Exploración</span></div>
+    <div class="item-nav"        id="nav-estadisticas" onclick="mostrarPagina('estadisticas',this)"> <svg class="icono"><use href="#ico-stats"/></svg>    <span>Estadísticas</span></div>
+    <div class="item-nav"        id="nav-correlacion"  onclick="mostrarPagina('correlacion',this)">  <svg class="icono"><use href="#ico-corr"/></svg>     <span>Correlación</span></div>
+    <div class="item-nav"        id="nav-cualitativas" onclick="mostrarPagina('cualitativas',this)"> <svg class="icono"><use href="#ico-cat"/></svg>      <span>Variables Cualitativas</span></div>
+    <div class="seccion-nav">Modelos</div>
+    <div class="item-nav"        id="nav-ml"           onclick="mostrarPagina('ml',this)">           <svg class="icono"><use href="#ico-ml"/></svg>       <span>Predicción ML</span></div>
+    <div class="seccion-nav">Análisis Avanzado</div>
+    <div class="item-nav"        id="nav-gerencial"    onclick="mostrarPagina('gerencial',this)">   <svg class="icono"><use href="#ico-gerencial"/></svg> <span>Análisis Gerencial</span></div>
+    <div class="seccion-nav">Reportes</div>
+    <div class="item-nav"        id="nav-panel"        onclick="mostrarPagina('panel',this)">        <svg class="icono"><use href="#ico-panel"/></svg>    <span>Panel Ejecutivo</span></div>
+    <div class="item-nav"        id="nav-exportar"     onclick="mostrarPagina('exportar',this)">    <svg class="icono"><use href="#ico-exportar"/></svg> <span>Exportar</span></div>
+  </nav>
+  <div class="pie-sb">
+    <div class="fila-temas">
+      <button class="btn-tema activo" onclick="cambiarTema('oscuro',this)"  title="Azul oscuro">Azul</button>
+      <button class="btn-tema"        onclick="cambiarTema('rojo',this)"    title="Rojo oscuro">Rojo</button>
+      <button class="btn-tema"        onclick="cambiarTema('pro',this)"     title="Claro profesional">Pro</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ÁREA PRINCIPAL ══════════ -->
+<div id="principal">
+  <div id="barra-superior">
+    <div class="titulo-barra">Plataforma de Inteligencia de Negocios</div>
+    <span class="insignia" id="insignia-ds">Sin datos</span>
+    <div id="estado-ds"><div class="punto-estado" id="punto-estado"></div><span id="texto-estado">Carga un archivo para comenzar</span></div>
+  </div>
+
+  <div id="contenido">
+
+    <!-- ══════ DATOS ══════ -->
+    <div class="pagina activa" id="pagina-datos">
+      <div class="tarjeta">
+        <div class="titulo-tarjeta"><div class="punto"></div>Cargar Dataset</div>
+        <div class="zona-carga" id="zona-carga" onclick="document.getElementById('entrada-archivo').click()">
+          <div class="icono-carga"><svg><use href="#ico-subir"/></svg></div>
+          <div class="titulo-carga">Arrastra tu archivo aquí</div>
+          <div class="subtitulo-carga">CSV (coma o punto y coma) &nbsp;·&nbsp; Excel .xlsx / .xls &nbsp;·&nbsp; máx 50 MB</div>
+        </div>
+        <input type="file" id="entrada-archivo" accept=".csv,.xlsx,.xls" style="display:none">
+      </div>
+      <div id="vista-datos" style="display:none">
+        <div class="grilla-kpi" id="grilla-kpi"></div>
+        <div class="g2">
+          <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Calidad de Datos</div><div id="sec-calidad"></div></div>
+          <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--ambar)"></div>Valores Faltantes por Columna</div><div id="sec-faltantes"></div></div>
+        </div>
+        <div class="tarjeta">
+          <div class="titulo-tarjeta"><div class="punto" style="background:var(--acento2)"></div>Inventario de Variables</div>
+          <div class="contenedor-tabla"><table>
+            <thead><tr><th>Variable</th><th>Tipo</th><th>Dtype</th><th>Únicos</th><th>Faltantes</th><th>% Nulo</th></tr></thead>
+            <tbody id="cuerpo-columnas"></tbody>
+          </table></div>
+        </div>
+        <div class="tarjeta">
+          <div class="titulo-tarjeta"><div class="punto" style="background:var(--verde)"></div>Limpieza de Datos</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <button class="btn btn-secundario btn-sm" onclick="limpiarDatos('eliminar_vacios')">   <svg><use href="#ico-eliminar"/></svg> Eliminar filas vacías</button>
+            <button class="btn btn-secundario btn-sm" onclick="limpiarDatos('eliminar_duplicados')"><svg><use href="#ico-copiar"/></svg>  Eliminar duplicados</button>
+            <button class="btn btn-secundario btn-sm" onclick="limpiarDatos('rellenar_media')">    Rellenar con Media</button>
+            <button class="btn btn-secundario btn-sm" onclick="limpiarDatos('rellenar_mediana')">  Rellenar con Mediana</button>
+            <button class="btn btn-secundario btn-sm" onclick="limpiarDatos('rellenar_moda')">     Rellenar con Moda</button>
+            <button class="btn btn-peligro btn-sm"    onclick="restaurarDatos()">                  Restaurar original</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="text" id="valor-personalizado" placeholder="Valor personalizado..." style="max-width:200px">
+            <select id="columna-personalizada" style="max-width:220px"></select>
+            <button class="btn btn-secundario btn-sm" onclick="rellenarPersonalizado()">Aplicar</button>
+          </div>
+          <div id="mensaje-limpieza" style="margin-top:10px"></div>
+        </div>
+        <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--ambar)"></div>Comparación: Original vs Limpio</div><div id="sec-comparacion"></div></div>
+        <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Vista Previa de Datos</div><div class="contenedor-tabla" id="contenedor-preview"></div></div>
+      </div>
+    </div>
+
+    <!-- ══════ ESTADÍSTICAS ══════ -->
+    <div class="pagina" id="pagina-estadisticas">
+      <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Resumen Estadístico</div>
+        <button class="btn btn-primario" onclick="cargarEstadisticas()"><svg><use href="#ico-stats"/></svg> Calcular estadísticas</button>
+      </div>
+      <div id="cuerpo-estadisticas"><div class="sin-datos"><h3>Carga un dataset primero</h3><p>Ve a Datos y Exploración y carga un archivo</p></div></div>
+    </div>
+
+    <!-- ══════ CORRELACIÓN ══════ -->
+    <div class="pagina" id="pagina-correlacion">
+      <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Análisis de Correlación</div>
+        <button class="btn btn-primario" onclick="cargarCorrelacion()"><svg><use href="#ico-corr"/></svg> Calcular correlaciones</button>
+      </div>
+      <div id="cuerpo-correlacion"><div class="sin-datos"><h3>Carga un dataset primero</h3></div></div>
+    </div>
+
+    <!-- ══════ CUALITATIVAS ══════ -->
+    <div class="pagina" id="pagina-cualitativas">
+      <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Variables Cualitativas</div>
+        <button class="btn btn-primario" onclick="cargarCualitativas()"><svg><use href="#ico-cat"/></svg> Analizar variables</button>
+      </div>
+      <div id="cuerpo-cualitativas"><div class="sin-datos"><h3>Carga un dataset primero</h3></div></div>
+    </div>
+
+    <!-- ══════ ML ══════ -->
+    <div class="pagina" id="pagina-ml">
+      <div class="g2">
+        <div class="tarjeta">
+          <div class="titulo-tarjeta"><div class="punto"></div>Configurar Modelo</div>
+          <div class="grupo-campo">
+            <label class="etiq-campo">Tipo de problema</label>
+            <div class="grupo-toggle">
+              <button class="opcion-toggle activo" id="btn-regresion"      onclick="establecerTipoML('regresion')">     Regresión</button>
+              <button class="opcion-toggle"         id="btn-clasificacion" onclick="establecerTipoML('clasificacion')"> Clasificación</button>
+            </div>
+          </div>
+          <div class="grupo-campo"><label class="etiq-campo">Variable Objetivo (Y)</label><select id="objetivo-ml"></select></div>
+          <div class="grupo-campo"><label class="etiq-campo">Variables Predictoras (X)</label><div class="multi-sel" id="predictoras-ml"></div></div>
+          <button class="btn btn-primario btn-bloque" onclick="entrenarModelo()"><svg><use href="#ico-ejecutar"/></svg> Entrenar modelo</button>
+          <div id="mensaje-ml" style="margin-top:8px"></div>
+        </div>
+        <div class="tarjeta">
+          <div class="titulo-tarjeta"><div class="punto" style="background:var(--acento2)"></div>Métricas del Modelo</div>
+          <div id="metricas-ml"><div class="sin-datos" style="padding:30px 0"><h3>Configura y entrena un modelo</h3></div></div>
+        </div>
+      </div>
+
+      <!-- Gráficas de entrenamiento -->
+      <div id="graficas-ml" style="display:none">
+        <div class="g2"><div class="tarjeta" id="ml-g1"></div><div class="tarjeta" id="ml-g2"></div></div>
+        <div class="tarjeta" id="ml-g3"></div>
+      </div>
+
+      <!-- Predicción por archivo -->
+      <div class="tarjeta" id="sec-pred-archivo" style="display:none">
+        <div class="titulo-tarjeta"><div class="punto" style="background:var(--verde)"></div>Predicción por Archivo</div>
+        <div class="alerta alerta-info"><svg><use href="#ico-info"/></svg> Carga un CSV o Excel con las mismas columnas predictoras para generar predicciones en lote</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <input type="file" id="archivo-prediccion" accept=".csv,.xlsx,.xls" style="display:none">
+          <button class="btn btn-primario" onclick="document.getElementById('archivo-prediccion').click()"><svg><use href="#ico-subir"/></svg> Cargar archivo</button>
+          <button class="btn btn-exito"    onclick="descargarModelo()"><svg><use href="#ico-guardar"/></svg> Descargar modelo .pkl</button>
+        </div>
+        <div id="resultado-archivo" style="margin-top:14px"></div>
+      </div>
+
+      <!-- Predicción manual -->
+      <div class="tarjeta" id="sec-pred-manual" style="display:none">
+        <div class="titulo-tarjeta"><div class="punto" style="background:var(--ambar)"></div>Predicción Manual — Ingresa valores</div>
+        <div class="alerta alerta-info"><svg><use href="#ico-manual"/></svg> Ingresa valores para cada variable predictora y obtén una predicción instantánea</div>
+        <div class="grilla-manual" id="campos-manuales"></div>
+        <button class="btn btn-primario" onclick="predecirManual()"><svg><use href="#ico-ejecutar"/></svg> Predecir ahora</button>
+        <div id="resultado-manual" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <!-- ══════ PANEL ══════ -->
+    <div class="pagina" id="pagina-panel">
+      <div class="tarjeta">
+        <div class="titulo-tarjeta"><div class="punto"></div>Panel Ejecutivo</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div id="filtros-panel" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+          <button class="btn btn-primario btn-sm" onclick="cargarPanel()"><svg><use href="#ico-actualizar"/></svg> Actualizar</button>
+        </div>
+      </div>
+      <div class="grilla-kpi" id="kpis-panel"></div>
+      <div id="graficas-panel"></div>
+    </div>
+
+    <!-- ══════ ANÁLISIS GERENCIAL ══════ -->
+    <div class="pagina" id="pagina-gerencial">
+
+      <!-- ── KPIs Velocímetros ── -->
+      <div class="tarjeta">
+        <div class="titulo-tarjeta"><div class="punto"></div>Velocímetros de KPI — Semáforo de Rendimiento</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+          <button class="btn btn-primario btn-sm" onclick="cargarKpisAvanzados()"><svg><use href="#ico-stats"/></svg> Calcular KPIs</button>
+        </div>
+        <div id="panel-kpis-avanzados"><div class="sin-datos" style="padding:20px 0"><h3>Haz clic en "Calcular KPIs" para comenzar</h3></div></div>
+      </div>
+
+      <!-- ── Pareto 80/20 ── -->
+      <div class="tarjeta">
+        <div class="titulo-tarjeta"><div class="punto" style="background:var(--ambar)"></div>Análisis de Pareto — Regla 80/20</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
+          <div class="grupo-campo" style="margin:0;min-width:180px"><label class="etiq-campo">Columna de valor (numérica)</label><select id="pareto-val"></select></div>
+          <div class="grupo-campo" style="margin:0;min-width:180px"><label class="etiq-campo">Columna de categoría</label><select id="pareto-cat"></select></div>
+          <button class="btn btn-primario btn-sm" onclick="cargarPareto()"><svg><use href="#ico-ejecutar"/></svg> Analizar</button>
+        </div>
+        <div id="resultado-pareto"><div class="sin-datos" style="padding:20px 0"><h3>Configura y ejecuta el análisis</h3></div></div>
+      </div>
+
+      <div class="g2">
+        <!-- ── Anomalías ── -->
+        <div class="tarjeta">
+          <div class="titulo-tarjeta"><div class="punto" style="background:var(--rojo)"></div>Detección de Anomalías</div>
+          <div class="grupo-campo"><label class="etiq-campo">Variable a analizar</label><select id="anomalia-col"></select></div>
+          <div class="grupo-campo"><label class="etiq-campo">Método de detección</label>
+            <div class="grupo-toggle">
+              <button class="opcion-toggle activo" id="btn-iqr"     onclick="setMetodoAnomalia('iqr',this)">IQR (Cuartiles)</button>
+              <button class="opcion-toggle"         id="btn-zscore" onclick="setMetodoAnomalia('zscore',this)">Z-Score (3σ)</button>
+            </div>
+          </div>
+          <button class="btn btn-primario btn-sm" onclick="cargarAnomalias()"><svg><use href="#ico-ejecutar"/></svg> Detectar</button>
+          <div id="resultado-anomalias" style="margin-top:12px"></div>
+        </div>
+
+        <!-- ── Comparativo entre grupos ── -->
+        <div class="tarjeta">
+          <div class="titulo-tarjeta"><div class="punto" style="background:var(--acento2)"></div>Comparativo entre Grupos</div>
+          <div class="grupo-campo"><label class="etiq-campo">Variable de agrupación (categórica)</label><select id="comp-grupo"></select></div>
+          <div class="grupo-campo"><label class="etiq-campo">Variable de análisis (numérica)</label><select id="comp-valor"></select></div>
+          <button class="btn btn-primario btn-sm" onclick="cargarComparativoGrupos()"><svg><use href="#ico-ejecutar"/></svg> Comparar</button>
+          <div id="resultado-comparativo" style="margin-top:12px"></div>
+        </div>
+      </div>
+
+      <!-- ── Tendencias ── -->
+      <div class="tarjeta">
+        <div class="titulo-tarjeta"><div class="punto" style="background:var(--verde)"></div>Análisis de Tendencias y Series de Tiempo</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
+          <div class="grupo-campo" style="margin:0;min-width:160px"><label class="etiq-campo">Variable de valor</label><select id="tend-val"></select></div>
+          <div class="grupo-campo" style="margin:0;min-width:160px"><label class="etiq-campo">Variable de período (opcional)</label><select id="tend-per"></select></div>
+          <div class="grupo-campo" style="margin:0;min-width:120px"><label class="etiq-campo">Ventana media móvil</label><input type="number" id="tend-ventana" value="7" min="2" max="60" style="max-width:100px"></div>
+          <button class="btn btn-primario btn-sm" onclick="cargarTendencia()"><svg><use href="#ico-ejecutar"/></svg> Analizar</button>
+        </div>
+        <div id="resultado-tendencia"></div>
+      </div>
+
+      <!-- ── Segmentación ── -->
+      <div class="tarjeta">
+        <div class="titulo-tarjeta"><div class="punto" style="background:var(--acento2)"></div>Segmentación de Clientes / Registros (K-Means)</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
+          <div class="grupo-campo" style="margin:0;min-width:160px"><label class="etiq-campo">Variable X</label><select id="seg-x"></select></div>
+          <div class="grupo-campo" style="margin:0;min-width:160px"><label class="etiq-campo">Variable Y</label><select id="seg-y"></select></div>
+          <div class="grupo-campo" style="margin:0;min-width:120px"><label class="etiq-campo">Número de segmentos</label><input type="number" id="seg-n" value="3" min="2" max="8" style="max-width:90px"></div>
+          <button class="btn btn-primario btn-sm" onclick="cargarSegmentacion()"><svg><use href="#ico-ejecutar"/></svg> Segmentar</button>
+        </div>
+        <div id="resultado-segmentacion"></div>
+      </div>
+
+      <!-- ── Tabla dinámica ── -->
+      <div class="tarjeta">
+        <div class="titulo-tarjeta"><div class="punto"></div>Tabla Dinámica Gerencial</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
+          <div class="grupo-campo" style="margin:0;min-width:160px"><label class="etiq-campo">Filas (índice)</label><select id="td-filas"></select></div>
+          <div class="grupo-campo" style="margin:0;min-width:160px"><label class="etiq-campo">Columnas (pivote)</label><select id="td-columnas"></select></div>
+          <div class="grupo-campo" style="margin:0;min-width:160px"><label class="etiq-campo">Valores (numérico)</label><select id="td-valores"></select></div>
+          <div class="grupo-campo" style="margin:0;min-width:130px"><label class="etiq-campo">Agregación</label>
+            <select id="td-agr">
+              <option value="suma">Suma</option><option value="media">Media</option>
+              <option value="conteo">Conteo</option><option value="maximo">Máximo</option>
+              <option value="minimo">Mínimo</option><option value="mediana">Mediana</option>
+            </select>
+          </div>
+          <button class="btn btn-primario btn-sm" onclick="cargarTablaDinamica()"><svg><use href="#ico-ejecutar"/></svg> Generar</button>
+        </div>
+        <div id="resultado-tabla-dinamica"></div>
+      </div>
+
+    </div><!-- /pagina-gerencial -->
+
+    <!-- ══════ EXPORTAR ══════ -->
+    <div class="pagina" id="pagina-exportar">
+      <div class="g2">
+        <div class="tarjeta">
+          <div class="titulo-tarjeta"><div class="punto" style="background:var(--verde)"></div>Exportar a Excel</div>
+          <p style="color:var(--apagado2);font-size:13px;margin-bottom:14px;line-height:1.6">Reporte completo con múltiples hojas: datos limpios, originales, estadísticas descriptivas, correlaciones, frecuencias y valores faltantes.</p>
+          <div class="alerta alerta-exito"><svg><use href="#ico-archivo"/></svg> Formato .xlsx con estilos y encabezados profesionales</div>
+          <button class="btn btn-exito btn-bloque" onclick="exportarArchivo('excel')"><svg><use href="#ico-exportar"/></svg> Descargar Excel</button>
+        </div>
+        <div class="tarjeta">
+          <div class="titulo-tarjeta"><div class="punto" style="background:var(--rojo)"></div>Exportar a PDF</div>
+          <p style="color:var(--apagado2);font-size:13px;margin-bottom:14px;line-height:1.6">Reporte ejecutivo en PDF con resumen del dataset, estadísticas descriptivas y análisis de variables categóricas con tablas formateadas.</p>
+          <div class="alerta alerta-aviso"><svg><use href="#ico-archivo"/></svg> Formato PDF con tablas y estilos formateados</div>
+          <button class="btn btn-peligro btn-bloque" onclick="exportarArchivo('pdf')"><svg><use href="#ico-exportar"/></svg> Descargar PDF</button>
+        </div>
+      </div>
+      <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Estado de exportación</div>
+        <div id="estado-exportacion"><div class="sin-datos" style="padding:20px 0"><h3>Genera un reporte para comenzar</h3></div></div>
+      </div>
+    </div>
+
+  </div><!-- /contenido -->
+</div><!-- /principal -->
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════
+   ESTADO GLOBAL
+═══════════════════════════════════════════════ */
+let hayDatos       = false;
+let tipoML         = 'regresion';
+let modeloB64      = null;
+let estadoFiltros  = {};
+let temaActual     = 'oscuro';
+let predictoresActuales = [];
+
+/* ═══════════════════════════════════════════════
+   PALETAS DE COLORES POR TEMA
+═══════════════════════════════════════════════ */
+const PALETAS = {
+  oscuro: ['#38bdf8','#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#84cc16','#f97316','#ec4899'],
+  rojo:   ['#ef4444','#f97316','#eab308','#f87171','#fb923c','#fbbf24','#dc2626','#ea580c','#ca8a04','#b91c1c'],
+  pro:    ['#6366f1','#0ea5e9','#059669','#d97706','#dc2626','#7c3aed','#0891b2','#65a30d','#c2410c','#be123c'],
+};
+
+function obtenerTemaPlotly() {
+  if (temaActual === 'pro') return { fondo:'rgba(248,250,252,0)', area:'rgba(241,245,249,0.95)', fuente:'#334155', tituloFuente:'#0f172a', plantilla:'plotly_white' };
+  return { fondo:'rgba(0,0,0,0)', area:'rgba(15,23,42,0.95)', fuente:'#94a3b8', tituloFuente:'#e2e8f0', plantilla:'plotly_dark' };
+}
+
+function construirEsquema(extras) {
+  const t = obtenerTemaPlotly();
+  return Object.assign({
+    template:      t.plantilla,
+    paper_bgcolor: t.fondo,
+    plot_bgcolor:  t.area,
+    font:          { color: t.fuente, size: 12, family: 'Inter,sans-serif' },
+    title_font:    { color: t.tituloFuente, size: 14, family: 'Space Grotesk,sans-serif' },
+    margin:        { l: 55, r: 20, t: 55, b: 55 },
+    colorway:      PALETAS[temaActual],
+    xaxis: { gridcolor:'rgba(128,128,128,0.1)', linecolor:'rgba(128,128,128,0.15)' },
+    yaxis: { gridcolor:'rgba(128,128,128,0.1)', linecolor:'rgba(128,128,128,0.15)' },
+  }, extras || {});
+}
+
+function renderizarGrafica(idDiv, datosFig) {
+  const esquema = construirEsquema({
+    title:  datosFig.layout.title,
+    height: datosFig.layout.height,
+  });
+  // Copiar campos específicos útiles
+  ['xaxis_title','yaxis_title','barmode','showlegend'].forEach(k => {
+    if (datosFig.layout[k] !== undefined) esquema[k] = datosFig.layout[k];
+  });
+  Plotly.newPlot(idDiv, datosFig.data, esquema, { responsive: true, displayModeBar: false });
+}
+
+/* ═══════════════════════════════════════════════
+   TEMA
+═══════════════════════════════════════════════ */
+function cambiarTema(nombre, btn) {
+  temaActual = nombre;
+  document.body.className = nombre === 'oscuro' ? '' : 'tema-' + nombre;
+  document.querySelectorAll('.btn-tema').forEach(b => b.classList.remove('activo'));
+  if (btn) btn.classList.add('activo');
+  document.querySelectorAll('.js-plotly-plot').forEach(el => {
+    try {
+      const t = obtenerTemaPlotly();
+      Plotly.relayout(el, {
+        template: t.plantilla, paper_bgcolor: t.fondo, plot_bgcolor: t.area,
+        'font.color': t.fuente, 'title.font.color': t.tituloFuente,
+        colorway: PALETAS[temaActual],
+      });
+    } catch(e) {}
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   NAVEGACIÓN
+═══════════════════════════════════════════════ */
+function mostrarPagina(nombre, elem) {
+  document.querySelectorAll('.pagina').forEach(p => p.classList.remove('activa'));
+  document.querySelectorAll('.item-nav').forEach(n => n.classList.remove('activo'));
+  const pg = document.getElementById('pagina-' + nombre);
+  if (pg) pg.classList.add('activa');
+  if (elem) elem.classList.add('activo');
+  if (nombre === 'estadisticas' && hayDatos) cargarEstadisticas();
+  if (nombre === 'correlacion'  && hayDatos) cargarCorrelacion();
+  if (nombre === 'cualitativas' && hayDatos) cargarCualitativas();
+  if (nombre === 'ml'           && hayDatos) cargarColumnasML();
+  if (nombre === 'panel'        && hayDatos) { cargarFiltrosPanel(); cargarPanel(); }
+  if (nombre === 'gerencial'    && hayDatos) iniciarGerencial();
+}
+
+/* ═══════════════════════════════════════════════
+   CARGA DE ARCHIVO
+═══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  const zona = document.getElementById('zona-carga');
+  zona.addEventListener('dragover',  e => { e.preventDefault(); zona.classList.add('sobre'); });
+  zona.addEventListener('dragleave', e => { e.preventDefault(); zona.classList.remove('sobre'); });
+  zona.addEventListener('drop', e => {
+    e.preventDefault(); zona.classList.remove('sobre');
+    if (e.dataTransfer.files[0]) subirArchivo(e.dataTransfer.files[0]);
+  });
+  document.getElementById('entrada-archivo').addEventListener('change', function() {
+    if (this.files[0]) subirArchivo(this.files[0]);
+  });
+  document.getElementById('archivo-prediccion').addEventListener('change', function() {
+    if (this.files[0]) predecirPorArchivo(this.files[0]);
+  });
+});
+
+function resetearZona() {
+  document.getElementById('zona-carga').innerHTML =
+    `<div class="icono-carga"><svg><use href="#ico-subir"/></svg></div>
+     <div class="titulo-carga">Arrastra tu archivo aquí</div>
+     <div class="subtitulo-carga">CSV (coma o punto y coma) &nbsp;·&nbsp; Excel .xlsx / .xls &nbsp;·&nbsp; máx 50 MB</div>`;
+}
+
+async function subirArchivo(archivo) {
+  const zona = document.getElementById('zona-carga');
+  zona.innerHTML = `<div class="cargando"><div class="spinner"></div>Cargando ${archivo.name}…</div>`;
+  const fd = new FormData(); fd.append('archivo', archivo);
+  try {
+    const resp = await fetch('/api/datos/cargar', { method: 'POST', body: fd });
+    const d    = await resp.json();
+    if (d.error) { notificar(d.error, 'e'); resetearZona(); return; }
+    hayDatos = true;
+    document.getElementById('punto-estado').className = 'punto-estado activo';
+    document.getElementById('texto-estado').textContent = `${d.nombre_archivo}  ·  ${d.filas.toLocaleString()} filas  ·  ${d.columnas} columnas`;
+    document.getElementById('insignia-ds').textContent  = d.nombre_archivo;
+    resetearZona();
+    document.getElementById('vista-datos').style.display = 'block';
+    await cargarResumen();
+    notificar(`${d.nombre_archivo} cargado — ${d.filas.toLocaleString()} filas`, 's');
+  } catch(err) {
+    notificar('Error de conexión — asegúrate de que python app.py está corriendo', 'e');
+    resetearZona();
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   RESUMEN / OVERVIEW
+═══════════════════════════════════════════════ */
+async function cargarResumen() {
+  const resp = await fetch('/api/datos/resumen'); const d = await resp.json();
+  if (d.error) { notificar(d.error, 'e'); return; }
+
+  const G = g => ({
+    'ap': 'var(--acento),var(--acento2)', 'ag': 'var(--acento),var(--verde)',
+    'ppk':'var(--acento2),#e879f9',       'ar': 'var(--ambar),var(--rojo)',
+    'ga': 'var(--verde),var(--acento)',   'pa': 'var(--acento2),var(--acento)',
+  }[g]);
+
+  document.getElementById('grilla-kpi').innerHTML = [
+    { ic:'ico-filas',    etiq:'Total Registros',       val: d.filas.toLocaleString(),          sub: d.columnas+' variables',                                    g:'ap' },
+    { ic:'ico-numerico', etiq:'Variables Numéricas',   val: d.cant_numericas,                  sub: (d.cols_numericas.slice(0,2).join(', ')||'—')+(d.cols_numericas.length>2?'…':''),    g:'ag' },
+    { ic:'ico-etiqueta', etiq:'Variables Categóricas', val: d.cant_categoricas,                sub: (d.cols_categoricas.slice(0,2).join(', ')||'—')+(d.cols_categoricas.length>2?'…':''), g:'ppk'},
+    { ic:'ico-aviso',    etiq:'Datos Faltantes',       val: d.total_faltantes.toLocaleString(),sub: 'valores nulos',                                             g:'ar' },
+    { ic:'ico-ok',       etiq:'Calidad del Dataset',   val: d.calidad_datos+'%',              sub: 'datos completos',                                            g:'ga' },
+    { ic:'ico-memoria',  etiq:'Uso de Memoria',        val: d.memoria,                         sub: d.duplicados+' duplicados',                                  g:'pa' },
+  ].map((k, i) => `<div class="kpi" style="animation-delay:${i*60}ms">
+    <div class="kpi-ico"><svg><use href="#${k.ic}"/></svg></div>
+    <div class="kpi-etiq">${k.etiq}</div>
+    <div class="kpi-val" style="background:linear-gradient(135deg,${G(k.g)});-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:${k.val.toString().length>8?'16px':'24px'}">${k.val}</div>
+    <div class="kpi-sub">${k.sub}</div>
+  </div>`).join('');
+
+  const colorCalidad = d.calidad_datos > 90 ? 'var(--verde)' : d.calidad_datos > 70 ? 'var(--ambar)' : 'var(--rojo)';
+  document.getElementById('sec-calidad').innerHTML = `
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:48px;color:${colorCalidad}">${d.calidad_datos}%</div>
+      <div style="color:var(--apagado2);font-size:12px;letter-spacing:.5px;text-transform:uppercase">Calidad del dataset</div>
+    </div>
+    <div class="barra-wrap">
+      <div class="barra-fila"><span>Completitud</span><span>${d.calidad_datos}%</span></div>
+      <div class="barra-pista"><div class="barra-relleno calidad" style="width:${d.calidad_datos}%"></div></div>
+    </div>
+    ${d.duplicados > 0
+      ? `<div class="alerta alerta-aviso"><svg><use href="#ico-aviso"/></svg> ${d.duplicados} filas duplicadas encontradas</div>`
+      : `<div class="alerta alerta-exito"><svg><use href="#ico-ok"/></svg> Sin filas duplicadas</div>`}`;
+
+  document.getElementById('sec-faltantes').innerHTML = d.ranking_faltantes.length === 0
+    ? `<div class="alerta alerta-exito"><svg><use href="#ico-ok"/></svg> No hay valores faltantes</div>`
+    : d.ranking_faltantes.slice(0, 8).map(m => `<div class="barra-wrap">
+        <div class="barra-fila"><span style="font-size:12px">${m.columna}</span><span style="color:var(--ambar);font-size:11px">${m.porcentaje}% (${m.faltantes})</span></div>
+        <div class="barra-pista"><div class="barra-relleno" style="width:${Math.min(m.porcentaje,100)}%"></div></div>
+      </div>`).join('');
+
+  document.getElementById('cuerpo-columnas').innerHTML = d.info_columnas.map(c => `<tr>
+    <td style="font-weight:600">${c.nombre}</td>
+    <td><span class="etiqueta ${c.tipo==='Numérica'?'etiq-num':'etiq-cat'}">${c.tipo}</span></td>
+    <td style="color:var(--apagado2);font-size:11px">${c.tipo_dato}</td>
+    <td>${c.unicos.toLocaleString()}</td>
+    <td>${c.faltantes > 0 ? `<span style="color:var(--ambar)">${c.faltantes}</span>` : '0'}</td>
+    <td>${c.pct_faltante > 0 ? `<span style="color:${c.pct_faltante>20?'var(--rojo)':'var(--ambar)'}">${c.pct_faltante}%</span>` : '<span style="color:var(--verde)">0%</span>'}</td>
+  </tr>`).join('');
+
+  document.getElementById('columna-personalizada').innerHTML =
+    '<option value="">Todas las columnas</option>' +
+    d.info_columnas.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
+
+  await cargarComparacion(); await cargarPreview();
+}
+
+/* ═══════════════════════════════════════════════
+   LIMPIEZA
+═══════════════════════════════════════════════ */
+async function limpiarDatos(accion) {
+  const resp = await fetch('/api/datos/limpiar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ accion }) });
+  const d    = await resp.json();
+  if (d.error) { notificar(d.error, 'e'); return; }
+  document.getElementById('mensaje-limpieza').innerHTML =
+    `<div class="alerta alerta-exito"><svg><use href="#ico-ok"/></svg> Limpieza aplicada — ${d.filas.toLocaleString()} filas restantes · ${d.faltantes} valores faltantes</div>`;
+  await cargarResumen();
+}
+
+async function rellenarPersonalizado() {
+  const valor   = document.getElementById('valor-personalizado').value;
+  const columna = document.getElementById('columna-personalizada').value;
+  const resp    = await fetch('/api/datos/limpiar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ accion:'rellenar_personalizado', valor, columna: columna || null }) });
+  const d       = await resp.json();
+  if (d.error) { notificar(d.error, 'e'); return; }
+  document.getElementById('mensaje-limpieza').innerHTML =
+    `<div class="alerta alerta-exito"><svg><use href="#ico-ok"/></svg> Valores rellenados con "${valor}"</div>`;
+  await cargarResumen();
+}
+
+async function restaurarDatos() {
+  await fetch('/api/datos/restaurar', { method: 'POST' });
+  document.getElementById('mensaje-limpieza').innerHTML =
+    `<div class="alerta alerta-info"><svg><use href="#ico-info"/></svg> Dataset restaurado al estado original</div>`;
+  await cargarResumen();
+}
+
+async function cargarComparacion() {
+  const resp = await fetch('/api/datos/comparar'); const d = await resp.json(); if (d.error) return;
+  const o = d.original, l = d.limpio;
+  document.getElementById('sec-comparacion').innerHTML = `<div class="g2">
+    <div style="background:var(--fondo3);border-radius:8px;padding:14px">
+      <div style="font-weight:600;margin-bottom:10px;color:var(--ambar);font-size:13px">Dataset Original</div>
+      <div class="fila-metricas"><div class="chip-metrica"><strong>${o.filas.toLocaleString()}</strong>&nbsp;filas</div><div class="chip-metrica"><strong>${o.faltantes}</strong>&nbsp;nulos</div><div class="chip-metrica"><strong>${o.duplicados}</strong>&nbsp;dupl.</div><div class="chip-metrica"><strong>${o.calidad}%</strong>&nbsp;calidad</div></div>
+    </div>
+    <div style="background:var(--fondo3);border-radius:8px;padding:14px">
+      <div style="font-weight:600;margin-bottom:10px;color:var(--verde);font-size:13px">Dataset Limpio</div>
+      <div class="fila-metricas"><div class="chip-metrica"><strong>${l.filas.toLocaleString()}</strong>&nbsp;filas</div><div class="chip-metrica"><strong>${l.faltantes}</strong>&nbsp;nulos</div><div class="chip-metrica"><strong>${l.duplicados}</strong>&nbsp;dupl.</div><div class="chip-metrica"><strong>${l.calidad}%</strong>&nbsp;calidad</div></div>
+    </div>
+  </div>`;
+}
+
+async function cargarPreview() {
+  const resp = await fetch('/api/datos/vista_previa'); const d = await resp.json(); if (d.error) return;
+  document.getElementById('contenedor-preview').innerHTML =
+    `<table><thead><tr>${d.columnas.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>` +
+    d.datos.map(fila => `<tr>${fila.map(v => `<td>${v===null?'<span style="color:var(--apagado)">null</span>':String(v)}</td>`).join('')}</tr>`).join('') +
+    `</tbody></table>`;
+}
+
+/* ═══════════════════════════════════════════════
+   ESTADÍSTICAS
+═══════════════════════════════════════════════ */
+async function cargarEstadisticas() {
+  document.getElementById('cuerpo-estadisticas').innerHTML = '<div class="cargando"><div class="spinner"></div>Calculando estadísticas…</div>';
+  const resp = await fetch('/api/estadisticas/resumen'); const d = await resp.json();
+  if (d.error) { document.getElementById('cuerpo-estadisticas').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+  if (!d.estadisticas || !d.estadisticas.length) { document.getElementById('cuerpo-estadisticas').innerHTML = '<div class="alerta alerta-aviso">No se encontraron variables numéricas</div>'; return; }
+
+  const cols    = d.columnas;
+  const opcionesCols  = cols.map(c => `<option value="${c}">${c}</option>`).join('');
+  const checksCols    = cols.map(c => `<label class="item-check"><input type="checkbox" value="${c}" checked>${c}</label>`).join('');
+
+  document.getElementById('cuerpo-estadisticas').innerHTML = `
+    <div class="tarjeta">
+      <div class="titulo-tarjeta"><div class="punto"></div>Estadísticas Descriptivas</div>
+      <div class="contenedor-tabla"><table>
+        <thead><tr><th>Variable</th><th>N</th><th>Media</th><th>Mediana</th><th>Moda</th><th>Desv. Std</th><th>Varianza</th><th>Mínimo</th><th>Máximo</th><th>Rango</th><th>P25</th><th>P75</th><th>Asimetría</th><th>Curtosis</th><th>Nulos</th></tr></thead>
+        <tbody>${d.estadisticas.map(s => `<tr>
+          <td style="font-weight:600;color:var(--acento)">${s.variable}</td>
+          <td>${s.conteo.toLocaleString()}</td>
+          <td>${s.media}</td><td>${s.mediana}</td><td>${s.moda??'—'}</td>
+          <td>${s.desv_std}</td><td>${s.varianza}</td><td>${s.minimo}</td><td>${s.maximo}</td><td>${s.rango}</td>
+          <td>${s.p25}</td><td>${s.p75}</td>
+          <td style="color:${Math.abs(s.asimetria)>1?'var(--ambar)':'inherit'}">${s.asimetria}</td>
+          <td>${s.curtosis}</td>
+          <td>${s.faltantes>0?`<span style="color:var(--ambar)">${s.faltantes}</span>`:'0'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>
+    <div class="g2">
+      <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Boxplots</div>
+        <div class="multi-sel" id="chk-boxplot">${checksCols}</div>
+        <button class="btn btn-primario btn-sm" style="margin-top:10px" onclick="hacerBoxplot()">Generar</button>
+        <div id="graf-boxplot" style="margin-top:10px"></div>
+      </div>
+      <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--acento2)"></div>Violin Plots</div>
+        <div class="multi-sel" id="chk-violin">${checksCols}</div>
+        <button class="btn btn-primario btn-sm" style="margin-top:10px" onclick="hacerViolin()">Generar</button>
+        <div id="graf-violin" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--verde)"></div>Histograma y Densidad KDE</div>
+        <div class="grupo-campo"><select id="sel-hist">${opcionesCols}</select></div>
+        <button class="btn btn-primario btn-sm" onclick="hacerHistograma()">Generar</button>
+        <div id="graf-histograma" style="margin-top:10px"></div>
+      </div>
+      <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--ambar)"></div>Diagrama de Dispersión</div>
+        <div class="grupo-campo"><label class="etiq-campo">Eje X</label><select id="sel-disp-x">${opcionesCols}</select></div>
+        <div class="grupo-campo"><label class="etiq-campo">Eje Y</label><select id="sel-disp-y">${opcionesCols}</select></div>
+        <button class="btn btn-primario btn-sm" onclick="hacerDispersion()">Generar</button>
+        <div id="graf-dispersion" style="margin-top:10px"></div>
+      </div>
+    </div>`;
+  hacerBoxplot();
+}
+
+async function hacerBoxplot() {
+  const cols = [...document.querySelectorAll('#chk-boxplot input:checked')].map(i => i.value);
+  if (!cols.length) return;
+  const resp = await fetch('/api/estadisticas/boxplot', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ columnas: cols }) });
+  const fig  = await resp.json(); if (fig.error) return;
+  renderizarGrafica('graf-boxplot', fig);
+}
+async function hacerViolin() {
+  const cols = [...document.querySelectorAll('#chk-violin input:checked')].map(i => i.value);
+  if (!cols.length) return;
+  const resp = await fetch('/api/estadisticas/violin', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ columnas: cols }) });
+  const fig  = await resp.json(); if (fig.error) return;
+  renderizarGrafica('graf-violin', fig);
+}
+async function hacerHistograma() {
+  const col  = document.getElementById('sel-hist').value;
+  const resp = await fetch('/api/estadisticas/histograma', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ columna: col }) });
+  const fig  = await resp.json(); if (fig.error) return;
+  renderizarGrafica('graf-histograma', fig);
+}
+async function hacerDispersion() {
+  const ejeX = document.getElementById('sel-disp-x').value;
+  const ejeY = document.getElementById('sel-disp-y').value;
+  const resp = await fetch('/api/estadisticas/dispersion', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ eje_x: ejeX, eje_y: ejeY }) });
+  const fig  = await resp.json(); if (fig.error) return;
+  renderizarGrafica('graf-dispersion', fig);
+}
+
+/* ═══════════════════════════════════════════════
+   CORRELACIÓN
+═══════════════════════════════════════════════ */
+async function cargarCorrelacion() {
+  document.getElementById('cuerpo-correlacion').innerHTML = '<div class="cargando"><div class="spinner"></div>Calculando correlaciones…</div>';
+  const resp = await fetch('/api/correlacion/matriz'); const d = await resp.json();
+  if (d.error) { document.getElementById('cuerpo-correlacion').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+
+  const opcsVar    = d.columnas.map(c => `<option value="${c}">${c}</option>`).join('');
+  const filasPares = d.pares.slice(0, 20).map(p => {
+    const color = p.correlacion > 0.4 ? 'var(--verde)' : p.correlacion < -0.4 ? 'var(--rojo)' : 'var(--apagado2)';
+    return `<tr><td>${p.var1}</td><td>${p.var2}</td><td style="color:${color};font-weight:600">${p.correlacion}</td><td>${p.tipo}</td><td>${p.intensidad}</td></tr>`;
+  }).join('');
+
+  document.getElementById('cuerpo-correlacion').innerHTML = `
+    <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Interpretación Automática</div>
+      ${d.interpretaciones.map(i => `<div class="insight">${i}</div>`).join('')}
+    </div>
+    <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Mapa de Calor de Correlación</div><div id="graf-mapa-calor"></div></div>
+    <div class="g2">
+      <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--acento2)"></div>Diagrama de Dispersión por Pares</div>
+        <div class="grupo-campo"><label class="etiq-campo">Variable X</label><select id="sel-corr-v1">${opcsVar}</select></div>
+        <div class="grupo-campo"><label class="etiq-campo">Variable Y</label><select id="sel-corr-v2">${opcsVar}</select></div>
+        <button class="btn btn-primario btn-sm" onclick="hacerScatterPar()">Generar diagrama</button>
+        <div id="graf-scatter-par" style="margin-top:10px"></div>
+      </div>
+      <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--ambar)"></div>Ranking de Correlaciones</div>
+        <div class="contenedor-tabla"><table><thead><tr><th>Variable 1</th><th>Variable 2</th><th>r</th><th>Tipo</th><th>Intensidad</th></tr></thead>
+        <tbody>${filasPares}</tbody></table></div>
+      </div>
+    </div>`;
+  renderizarGrafica('graf-mapa-calor', d.mapa_calor);
+}
+
+async function hacerScatterPar() {
+  const v1   = document.getElementById('sel-corr-v1').value;
+  const v2   = document.getElementById('sel-corr-v2').value;
+  const resp = await fetch('/api/correlacion/scatter_par', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ var1: v1, var2: v2 }) });
+  const d    = await resp.json(); if (d.error) { notificar(d.error, 'e'); return; }
+  renderizarGrafica('graf-scatter-par', d.figura);
+}
+
+/* ═══════════════════════════════════════════════
+   CUALITATIVAS
+═══════════════════════════════════════════════ */
+async function cargarCualitativas() {
+  document.getElementById('cuerpo-cualitativas').innerHTML = '<div class="cargando"><div class="spinner"></div>Analizando variables…</div>';
+  const resp = await fetch('/api/cualitativas/resumen'); const d = await resp.json();
+  if (d.error) { document.getElementById('cuerpo-cualitativas').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+  if (!d.datos || !d.datos.length) { document.getElementById('cuerpo-cualitativas').innerHTML = '<div class="alerta alerta-aviso">No se encontraron variables categóricas</div>'; return; }
+
+  const opcsCol   = d.columnas.map(c => `<option value="${c}">${c}</option>`).join('');
+  const tarjCols  = d.datos.map(col => `
+    <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--acento2)"></div>${col.columna}
+      <span style="margin-left:auto;font-size:11px;color:var(--apagado2)">${col.unicos} únicos</span>
+    </div>
+    <div class="fila-metricas">
+      <div class="chip-metrica"><strong>${col.moda}</strong>&nbsp;moda</div>
+      <div class="chip-metrica"><strong>${col.moda_pct}%</strong>&nbsp;freq.</div>
+      ${col.faltantes > 0 ? `<div class="chip-metrica" style="color:var(--ambar)"><strong>${col.faltantes}</strong>&nbsp;nulos</div>` : ''}
+    </div>
+    <div class="contenedor-tabla" style="max-height:160px"><table><thead><tr><th>Categoría</th><th>Frecuencia</th><th>%</th></tr></thead>
+    <tbody>${col.top_categorias.map(c => `<tr><td>${c.categoria}</td><td>${c.conteo}</td><td>${c.pct}%</td></tr>`).join('')}</tbody></table></div>
+    </div>`).join('');
+
+  document.getElementById('cuerpo-cualitativas').innerHTML = `
+    <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Interpretaciones Automáticas</div>
+      ${d.datos.map(c => `<div class="insight" style="border-left-color:var(--acento2)">${c.interpretacion} — ${c.unicos} categorías únicas</div>`).join('')}
+    </div>
+    <div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--acento2)"></div>Visualizaciones Interactivas</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+        <select id="sel-col-cat" style="max-width:200px">${opcsCol}</select>
+        <div class="grupo-toggle">
+          <button class="opcion-toggle activo" onclick="hacerGraficaCat('barras',this)">Barras</button>
+          <button class="opcion-toggle"        onclick="hacerGraficaCat('circular',this)">Circular</button>
+          <button class="opcion-toggle"        onclick="hacerGraficaCat('donut',this)">Donut</button>
+          <button class="opcion-toggle"        onclick="hacerGraficaCat('mapa_arbol',this)">Mapa Árbol</button>
+        </div>
+        <button class="btn btn-secundario btn-sm" onclick="hacerTablaFrecuencias()">Tabla frecuencias</button>
+      </div>
+      <div id="graf-cat"></div>
+      <div id="tabla-frecuencias" style="margin-top:12px"></div>
+    </div>
+    <div>${tarjCols}</div>`;
+  hacerGraficaCat('barras', document.querySelector('#cuerpo-cualitativas .opcion-toggle'));
+}
+
+async function hacerGraficaCat(tipo, btn) {
+  if (btn) { btn.closest('.grupo-toggle').querySelectorAll('.opcion-toggle').forEach(b => b.classList.remove('activo')); btn.classList.add('activo'); }
+  const col  = document.getElementById('sel-col-cat').value;
+  const url  = tipo === 'mapa_arbol' ? '/api/cualitativas/mapa_arbol' : tipo === 'barras' ? '/api/cualitativas/barras' : '/api/cualitativas/circular';
+  const resp = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ columna: col, tipo }) });
+  const fig  = await resp.json(); if (fig.error) { notificar(fig.error, 'e'); return; }
+  renderizarGrafica('graf-cat', fig);
+}
+
+async function hacerTablaFrecuencias() {
+  const col  = document.getElementById('sel-col-cat').value;
+  const resp = await fetch('/api/cualitativas/tabla_frecuencias', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ columna: col }) });
+  const d    = await resp.json(); if (d.error) return;
+  document.getElementById('tabla-frecuencias').innerHTML = `<div class="contenedor-tabla"><table>
+    <thead><tr><th>Categoría</th><th>Frecuencia</th><th>Porcentaje relativo</th><th>Porcentaje acumulado</th></tr></thead>
+    <tbody>${d.filas.map(f => `<tr><td>${f.categoria}</td><td>${f.frecuencia}</td><td>${f.pct_relativa}%</td><td>${f.pct_acumulada}%</td></tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+/* ═══════════════════════════════════════════════
+   MACHINE LEARNING
+═══════════════════════════════════════════════ */
+function establecerTipoML(tipo) {
+  tipoML = tipo;
+  document.getElementById('btn-regresion').classList.toggle('activo',      tipo === 'regresion');
+  document.getElementById('btn-clasificacion').classList.toggle('activo',  tipo === 'clasificacion');
+}
+
+async function cargarColumnasML() {
+  const resp = await fetch('/api/ml/columnas'); const d = await resp.json(); if (d.error) return;
+  document.getElementById('objetivo-ml').innerHTML = d.todas_columnas.map(c => `<option value="${c}">${c}</option>`).join('');
+  predictoresActuales = d.todas_columnas;
+  document.getElementById('predictoras-ml').innerHTML = d.todas_columnas.map(c => {
+    const esNum = d.numericas.includes(c);
+    return `<label class="item-check"><input type="checkbox" value="${c}" checked>${c}<span class="etiq-tipo ${esNum?'etiq-num':'etiq-cat'}">${esNum?'num':'cat'}</span></label>`;
+  }).join('');
+}
+
+async function entrenarModelo() {
+  const objetivo    = document.getElementById('objetivo-ml').value;
+  const predictoras = [...document.querySelectorAll('#predictoras-ml input:checked')].map(i => i.value).filter(v => v !== objetivo);
+  if (!predictoras.length) { notificar('Selecciona al menos una variable predictora diferente al objetivo', 'w'); return; }
+
+  document.getElementById('mensaje-ml').innerHTML    = '<div class="cargando"><div class="spinner"></div>Entrenando modelo…</div>';
+  document.getElementById('metricas-ml').innerHTML   = '<div class="cargando"><div class="spinner"></div>Calculando métricas…</div>';
+
+  const resp = await fetch('/api/ml/entrenar', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ objetivo, predictoras, tipo_ml: tipoML }) });
+  const d    = await resp.json();
+  document.getElementById('mensaje-ml').innerHTML = '';
+
+  if (d.error) { document.getElementById('metricas-ml').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+
+  modeloB64 = d.modelo_b64;
+
+  let html = `<div class="fila-metricas">
+    <div class="chip-metrica"><span style="font-size:11px;color:var(--apagado2)">Entrenamiento</span><strong style="margin-left:5px">${d.muestras_ent}</strong></div>
+    <div class="chip-metrica"><span style="font-size:11px;color:var(--apagado2)">Prueba</span><strong style="margin-left:5px">${d.muestras_pru}</strong></div>
+  </div><div class="fila-metricas">`;
+  if (d.metricas.r2 !== undefined) {
+    html += `<div class="chip-metrica" style="color:var(--acento)">R²<strong style="margin-left:5px">${d.metricas.r2}</strong></div>
+             <div class="chip-metrica" style="color:var(--ambar)">RMSE<strong style="margin-left:5px">${d.metricas.rmse}</strong></div>
+             <div class="chip-metrica" style="color:var(--acento2)">MAE<strong style="margin-left:5px">${d.metricas.mae}</strong></div>`;
+  }
+  if (d.metricas.exactitud !== undefined) {
+    html += `<div class="chip-metrica" style="color:var(--verde)">Exactitud<strong style="margin-left:5px">${(d.metricas.exactitud*100).toFixed(2)}%</strong></div>`;
+  }
+  html += '</div>';
+  if (d.importancia && d.importancia.length) {
+    const maxI = Math.max(...d.importancia.map(i => Math.abs(i.importancia))) || 1;
+    html += `<div style="margin-top:12px"><div class="etiq-campo">Importancia de Variables</div>` +
+      d.importancia.slice(0, 6).map(f => {
+        const pct = Math.min(Math.abs(f.importancia) / maxI * 100, 100);
+        return `<div class="barra-wrap"><div class="barra-fila"><span>${f.variable}</span><span>${f.importancia}</span></div>
+          <div class="barra-pista"><div class="barra-relleno importancia" style="width:${pct}%"></div></div></div>`;
+      }).join('') + '</div>';
+  }
+  document.getElementById('metricas-ml').innerHTML = html;
+
+  // Gráficas de entrenamiento
+  document.getElementById('graficas-ml').style.display = 'block';
+  ['ml-g1','ml-g2','ml-g3'].forEach(id => document.getElementById(id).innerHTML = '');
+  if (d.fig_pred) { document.getElementById('ml-g1').innerHTML = '<div class="titulo-tarjeta"><div class="punto"></div>Real vs Predicho</div><div id="graf-ml-pred"></div>'; renderizarGrafica('graf-ml-pred', d.fig_pred); }
+  if (d.fig_conf) { document.getElementById('ml-g2').innerHTML = '<div class="titulo-tarjeta"><div class="punto"></div>Matriz de Confusión</div><div id="graf-ml-conf"></div>'; renderizarGrafica('graf-ml-conf', d.fig_conf); }
+  if (d.fig_imp)  { document.getElementById('ml-g3').innerHTML = '<div class="titulo-tarjeta"><div class="punto"></div>Importancia de Variables</div><div id="graf-ml-imp"></div>';  renderizarGrafica('graf-ml-imp',  d.fig_imp);  }
+
+  // Secciones de predicción
+  document.getElementById('sec-pred-archivo').style.display = 'block';
+  document.getElementById('sec-pred-manual').style.display  = 'block';
+
+  // Generar campos manuales
+  const predictUsadas = d.predictoras_usadas || predictoras;
+  document.getElementById('campos-manuales').innerHTML = predictUsadas.map(col => `
+    <div class="grupo-campo">
+      <label class="etiq-campo">${col}</label>
+      <input type="text" id="campo-manual-${col.replace(/[^a-zA-Z0-9]/g,'_')}" placeholder="Valor para ${col}..." data-col="${col}">
+    </div>`).join('');
+
+  notificar('Modelo entrenado correctamente', 's');
+}
+
+async function predecirPorArchivo(archivo) {
+  const fd = new FormData(); fd.append('archivo', archivo);
+  document.getElementById('resultado-archivo').innerHTML = '<div class="cargando"><div class="spinner"></div>Generando predicciones…</div>';
+  const resp = await fetch('/api/ml/predecir_archivo', { method:'POST', body: fd });
+  const d    = await resp.json();
+  if (d.error) { document.getElementById('resultado-archivo').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+
+  const encabezados = d.vista_previa.columnas.map(c => `<th>${c}</th>`).join('');
+  const filas = d.vista_previa.datos.slice(0, 50).map(fila => '<tr>' +
+    fila.map((v, i) => i === d.vista_previa.columnas.indexOf('PREDICCION')
+      ? `<td style="color:var(--acento);font-weight:600">${v}</td>`
+      : `<td>${v}</td>`).join('') + '</tr>').join('');
+
+  document.getElementById('resultado-archivo').innerHTML = `
+    <div class="alerta alerta-exito"><svg><use href="#ico-ok"/></svg> ${d.total_predicciones.toLocaleString()} predicciones generadas</div>
+    <div id="graf-pred-archivo"></div>
+    <div class="tarjeta" style="margin-top:12px">
+      <div class="titulo-tarjeta"><div class="punto"></div>Vista previa (${Math.min(50, d.vista_previa.total)} de ${d.vista_previa.total} registros)</div>
+      <div class="contenedor-tabla"><table><thead><tr>${encabezados}</tr></thead><tbody>${filas}</tbody></table></div>
+    </div>`;
+  renderizarGrafica('graf-pred-archivo', d.figura);
+}
+
+async function predecirManual() {
+  const inputs = document.querySelectorAll('#campos-manuales input[data-col]');
+  const valores = {};
+  inputs.forEach(inp => { valores[inp.dataset.col] = inp.value; });
+
+  const resp = await fetch('/api/ml/predecir_manual', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ valores }) });
+  const d    = await resp.json();
+
+  if (d.error) {
+    document.getElementById('resultado-manual').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`;
+    return;
+  }
+
+  let html = `<div class="resultado-prediccion">
+    <div class="etiq-prediccion">Predicción para ${d.tipo_ml === 'regresion' ? 'el valor' : 'la clase'}</div>
+    <div class="valor-predicho">${d.prediccion}</div>`;
+
+  if (d.probabilidades) {
+    html += `<div style="margin-top:12px;font-size:12px;color:var(--apagado2);text-align:left"><strong style="display:block;margin-bottom:8px">Probabilidades por clase:</strong>`;
+    Object.entries(d.probabilidades).sort((a,b) => b[1]-a[1]).forEach(([cls, pct]) => {
+      html += `<div style="margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span>${cls}</span><span style="font-weight:600">${pct}%</span></div>
+        <div class="barra-prob"><div class="relleno-prob" style="width:${pct}%"></div></div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  document.getElementById('resultado-manual').innerHTML = html;
+}
+
+function descargarModelo() {
+  if (!modeloB64) { notificar('Entrena un modelo primero', 'w'); return; }
+  try {
+    const bin = atob(modeloB64), bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const a = document.createElement('a');
+    a.href     = URL.createObjectURL(new Blob([bytes], { type: 'application/octet-stream' }));
+    a.download = 'modelo_bi.pkl'; a.click();
+  } catch(e) { notificar('Error al descargar el modelo', 'e'); }
+}
+
+/* ═══════════════════════════════════════════════
+   PANEL EJECUTIVO
+═══════════════════════════════════════════════ */
+async function cargarFiltrosPanel() {
+  const resp = await fetch('/api/dashboard/opciones_filtro'); const d = await resp.json(); if (d.error) return;
+  document.getElementById('filtros-panel').innerHTML = Object.entries(d.opciones).map(([col, vals]) =>
+    `<select onchange="estadoFiltros['${col}']=this.value" style="max-width:160px">
+      ${vals.map(v => `<option value="${v}">${col}: ${v}</option>`).join('')}
+    </select>`).join('') || '<span style="color:var(--apagado2);font-size:12px">Sin filtros disponibles</span>';
+}
+
+async function cargarPanel() {
+  const resp1 = await fetch('/api/dashboard/indicadores'); const dk = await resp1.json();
+  if (!dk.error) {
+    const pal = PALETAS[temaActual];
+    let khtml = `
+      <div class="kpi"><div class="kpi-etiq">Total Registros</div><div class="kpi-val">${dk.total_filas.toLocaleString()}</div></div>
+      <div class="kpi"><div class="kpi-etiq">Variables Numéricas</div><div class="kpi-val" style="font-size:20px">${dk.cant_numericas}</div></div>
+      <div class="kpi"><div class="kpi-etiq">Variables Categóricas</div><div class="kpi-val" style="font-size:20px">${dk.cant_categoricas}</div></div>`;
+    dk.indicadores.slice(0, 4).forEach((k, i) => {
+      khtml += `<div class="kpi">
+        <div class="kpi-etiq">${k.nombre.substring(0, 14)}</div>
+        <div class="kpi-val" style="font-size:16px;background:linear-gradient(135deg,${pal[i]},${pal[(i+1)%pal.length]});-webkit-background-clip:text;-webkit-text-fill-color:transparent">${k.suma.toLocaleString()}</div>
+        <div class="kpi-sub">Media: ${k.media}</div>
+      </div>`;
+    });
+    document.getElementById('kpis-panel').innerHTML = khtml;
+  }
+
+  const resp2 = await fetch('/api/dashboard/graficas', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ filtros: estadoFiltros }) });
+  const dc    = await resp2.json(); if (dc.error) return;
+
+  let html = '<div class="g2">';
+  if (dc.tendencia)     html += `<div class="tarjeta"><div class="titulo-tarjeta"><div class="punto"></div>Tendencia</div><div id="pan-tendencia"></div></div>`;
+  if (dc.categorias)    html += `<div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--acento2)"></div>Categorías</div><div id="pan-categorias"></div></div>`;
+  html += '</div><div class="g2">';
+  if (dc.distribuciones)html += `<div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--verde)"></div>Distribuciones</div><div id="pan-dist"></div></div>`;
+  if (dc.proporcion)    html += `<div class="tarjeta"><div class="titulo-tarjeta"><div class="punto" style="background:var(--ambar)"></div>Proporción</div><div id="pan-proporcion"></div></div>`;
+  html += '</div>';
+  document.getElementById('graficas-panel').innerHTML = html;
+
+  setTimeout(() => {
+    if (dc.tendencia)      renderizarGrafica('pan-tendencia',  dc.tendencia);
+    if (dc.categorias)     renderizarGrafica('pan-categorias', dc.categorias);
+    if (dc.distribuciones) renderizarGrafica('pan-dist',       dc.distribuciones);
+    if (dc.proporcion)     renderizarGrafica('pan-proporcion', dc.proporcion);
+  }, 80);
+}
+
+/* ═══════════════════════════════════════════════
+   EXPORTACIÓN
+═══════════════════════════════════════════════ */
+async function exportarArchivo(tipo) {
+  document.getElementById('estado-exportacion').innerHTML =
+    `<div class="cargando"><div class="spinner"></div>Generando ${tipo === 'excel' ? 'Excel' : 'PDF'}…</div>`;
+  try {
+    const resp = await fetch(`/api/exportacion/${tipo === 'excel' ? 'excel' : 'pdf'}`, { method: 'POST' });
+    if (!resp.ok) { const e = await resp.json().catch(() => ({ error: 'Error del servidor' })); throw new Error(e.error || 'Error'); }
+    const blob = await resp.blob();
+    const ext  = tipo === 'excel' ? 'xlsx' : 'pdf';
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob); a.download = `BI_Reporte.${ext}`; a.click();
+    document.getElementById('estado-exportacion').innerHTML =
+      `<div class="alerta alerta-exito"><svg><use href="#ico-ok"/></svg> ${tipo === 'excel' ? 'Excel' : 'PDF'} descargado correctamente</div>`;
+  } catch(e) {
+    document.getElementById('estado-exportacion').innerHTML =
+      `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg> ${e.message}</div>`;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   ANÁLISIS GERENCIAL
+═══════════════════════════════════════════════ */
+let metodoAnomalia = 'iqr';
+
+function setMetodoAnomalia(m, btn) {
+  metodoAnomalia = m;
+  btn.closest('.grupo-toggle').querySelectorAll('.opcion-toggle').forEach(b => b.classList.remove('activo'));
+  btn.classList.add('activo');
+}
+
+async function iniciarGerencial() {
+  const resp = await fetch('/api/datos/resumen'); const d = await resp.json();
+  if (d.error) return;
+  const opcsNum = d.cols_numericas.map(c => `<option value="${c}">${c}</option>`).join('');
+  const opcsCat = d.cols_categoricas.map(c => `<option value="${c}">${c}</option>`).join('');
+  const opcsAll = [...d.cols_numericas, ...d.cols_categoricas].map(c => `<option value="${c}">${c}</option>`).join('');
+  const opcsPerTodas = '<option value="">— Sin período —</option>' + opcsAll;
+
+  ['pareto-val','anomalia-col','comp-valor','tend-val','seg-x','seg-y','td-valores'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.innerHTML = opcsNum;
+  });
+  ['pareto-cat','comp-grupo','td-filas','td-columnas'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.innerHTML = opcsCat || opcsAll;
+  });
+  const tendPer = document.getElementById('tend-per');
+  if (tendPer) tendPer.innerHTML = opcsPerTodas;
+}
+
+async function cargarKpisAvanzados() {
+  document.getElementById('panel-kpis-avanzados').innerHTML = '<div class="cargando"><div class="spinner"></div>Calculando indicadores…</div>';
+  const resp = await fetch('/api/gerencial/kpis_avanzados'); const d = await resp.json();
+  if (d.error) { document.getElementById('panel-kpis-avanzados').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+
+  const colores = { verde:'var(--verde)', amarillo:'var(--ambar)', rojo:'var(--rojo)' };
+  const flechas = v => v > 0 ? '▲' : v < 0 ? '▼' : '—';
+
+  const tarjetas = d.kpis.map(k => `
+    <div class="kpi" style="min-width:180px">
+      <div style="position:absolute;top:10px;right:10px;width:10px;height:10px;border-radius:50%;background:${colores[k.semaforo]};box-shadow:0 0 8px ${colores[k.semaforo]}"></div>
+      <div class="kpi-etiq">${k.nombre}</div>
+      <div class="kpi-val" style="font-size:18px;background:${colores[k.semaforo]};-webkit-background-clip:text;-webkit-text-fill-color:transparent">${k.ultimo_valor.toLocaleString()}</div>
+      <div style="font-size:11px;color:${k.cambio_pct>=0?'var(--verde)':'var(--rojo)'};margin-top:4px">${flechas(k.cambio_pct)} ${k.cambio_pct > 0 ? '+' : ''}${k.cambio_pct}% vs inicio</div>
+      <div class="kpi-sub">Media: ${k.media} · CV: ${k.coef_variacion}%</div>
+      <div class="kpi-sub">Percentil actual: ${k.percentil_actual}%</div>
+    </div>`).join('');
+
+  document.getElementById('panel-kpis-avanzados').innerHTML =
+    `<div class="grilla-kpi" style="margin-bottom:16px">${tarjetas}</div><div id="graf-gauges"></div>`;
+  renderizarGrafica('graf-gauges', d.figura);
+}
+
+async function cargarPareto() {
+  const colVal = document.getElementById('pareto-val').value;
+  const colCat = document.getElementById('pareto-cat').value;
+  const resp = await fetch('/api/gerencial/pareto', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ columna_valor: colVal, columna_categoria: colCat }) });
+  const d    = await resp.json();
+  if (d.error) { document.getElementById('resultado-pareto').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+
+  const resumen = `<div class="fila-metricas" style="margin-bottom:12px">
+    <div class="chip-metrica" style="color:var(--verde)"><strong>${d.categorias_vitales_n}</strong>&nbsp;categorías vitales</div>
+    <div class="chip-metrica" style="color:var(--ambar)"><strong>${d.pct_valor_vital}%</strong>&nbsp;del valor total</div>
+    <div class="chip-metrica"><strong>${d.total_categorias}</strong>&nbsp;categorías totales</div>
+  </div>
+  <div class="alerta alerta-info"><svg><use href="#ico-info"/></svg>
+    Las categorías <b>${d.categorias_vitales.slice(0,3).join(', ')}${d.categorias_vitales.length>3?'…':''}</b>
+    representan el ${d.pct_valor_vital}% del valor total (principio 80/20)
+  </div>`;
+
+  const filaTabla = d.tabla.map(t => `<tr>
+    <td style="font-weight:600">${t.categoria}</td>
+    <td>${t.valor.toLocaleString()}</td>
+    <td>${t.pct_individual}%</td>
+    <td style="color:${t.pct_acumulado<=80?'var(--verde)':'var(--apagado2)'};font-weight:600">${t.pct_acumulado}%</td>
+  </tr>`).join('');
+
+  document.getElementById('resultado-pareto').innerHTML = `${resumen}<div id="graf-pareto"></div>
+    <div class="contenedor-tabla" style="margin-top:12px"><table>
+      <thead><tr><th>Categoría</th><th>Valor</th><th>% Individual</th><th>% Acumulado</th></tr></thead>
+      <tbody>${filaTabla}</tbody>
+    </table></div>`;
+  renderizarGrafica('graf-pareto', d.figura);
+}
+
+async function cargarAnomalias() {
+  const col  = document.getElementById('anomalia-col').value;
+  const resp = await fetch('/api/gerencial/anomalias', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ columna: col, metodo: metodoAnomalia }) });
+  const d    = await resp.json();
+  if (d.error) { document.getElementById('resultado-anomalias').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+
+  const tipoAlerta = d.pct_anomalias > 10 ? 'alerta-aviso' : 'alerta-exito';
+  document.getElementById('resultado-anomalias').innerHTML = `
+    <div class="alerta ${tipoAlerta}"><svg><use href="#ico-${d.pct_anomalias>10?'aviso':'ok'}"/></svg>
+      Se detectaron <b>${d.total_anomalias}</b> anomalías (${d.pct_anomalias}%) de ${d.total_registros} registros.
+      Límites: [${d.limite_inferior}, ${d.limite_superior}]
+    </div>
+    <div id="graf-anomalias"></div>`;
+  renderizarGrafica('graf-anomalias', d.figura);
+}
+
+async function cargarComparativoGrupos() {
+  const grupo = document.getElementById('comp-grupo').value;
+  const valor = document.getElementById('comp-valor').value;
+  const resp  = await fetch('/api/gerencial/comparativo_grupos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ columna_grupo: grupo, columna_valor: valor }) });
+  const d     = await resp.json();
+  if (d.error) { document.getElementById('resultado-comparativo').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+
+  const filas = d.tabla.map(t => `<tr>${d.columnas.map(col => `<td>${t[col]??'—'}</td>`).join('')}</tr>`).join('');
+  document.getElementById('resultado-comparativo').innerHTML = `
+    <div id="graf-comparativo"></div>
+    <div class="contenedor-tabla" style="margin-top:12px"><table>
+      <thead><tr>${d.columnas.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${filas}</tbody>
+    </table></div>`;
+  renderizarGrafica('graf-comparativo', d.figura);
+}
+
+async function cargarTendencia() {
+  const colVal  = document.getElementById('tend-val').value;
+  const colPer  = document.getElementById('tend-per').value;
+  const ventana = parseInt(document.getElementById('tend-ventana').value) || 7;
+  const resp    = await fetch('/api/gerencial/tendencia', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ columna_valor: colVal, columna_periodo: colPer || null, ventana_media: ventana }) });
+  const d       = await resp.json();
+  if (d.error) { document.getElementById('resultado-tendencia').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+
+  const colorDir = d.direccion === 'Creciente' ? 'var(--verde)' : 'var(--rojo)';
+  document.getElementById('resultado-tendencia').innerHTML = `
+    <div class="fila-metricas" style="margin-bottom:12px">
+      <div class="chip-metrica" style="color:${colorDir}"><strong>${d.cambio_pct > 0 ? '+' : ''}${d.cambio_pct}%</strong>&nbsp;cambio total</div>
+      <div class="chip-metrica" style="color:${colorDir}"><strong>${d.direccion}</strong></div>
+      <div class="chip-metrica"><strong>${d.media_total}</strong>&nbsp;media</div>
+      <div class="chip-metrica"><strong>${d.minimo}</strong>&nbsp;mínimo</div>
+      <div class="chip-metrica"><strong>${d.maximo}</strong>&nbsp;máximo</div>
+      <div class="chip-metrica">Pendiente: <strong>${d.pendiente}</strong></div>
+    </div>
+    <div id="graf-tendencia"></div>`;
+  renderizarGrafica('graf-tendencia', d.figura);
+}
+
+async function cargarSegmentacion() {
+  const colX    = document.getElementById('seg-x').value;
+  const colY    = document.getElementById('seg-y').value;
+  const nGrupos = parseInt(document.getElementById('seg-n').value) || 3;
+  const resp    = await fetch('/api/gerencial/segmentacion', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ col_x: colX, col_y: colY, n_grupos: nGrupos }) });
+  const d       = await resp.json();
+  if (d.error) { document.getElementById('resultado-segmentacion').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+
+  const chips = d.resumen_grupos.map(g => {
+    const keys = Object.keys(g).filter(k => k !== 'grupo');
+    return `<div class="chip-metrica" style="flex-direction:column;align-items:flex-start;gap:2px">
+      <strong style="color:var(--acento)">Segmento ${g.grupo}</strong>
+      ${keys.map(k => `<span>${k}: <b>${g[k]}</b></span>`).join('')}
+    </div>`;
+  }).join('');
+
+  document.getElementById('resultado-segmentacion').innerHTML = `
+    <div class="fila-metricas" style="margin-bottom:12px">${chips}</div>
+    <div id="graf-segmentacion"></div>`;
+  renderizarGrafica('graf-segmentacion', d.figura);
+}
+
+async function cargarTablaDinamica() {
+  const filas  = document.getElementById('td-filas').value;
+  const cols   = document.getElementById('td-columnas').value;
+  const vals   = document.getElementById('td-valores').value;
+  const agr    = document.getElementById('td-agr').value;
+  const resp   = await fetch('/api/gerencial/tabla_dinamica', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ filas, columnas: cols, valores: vals, agregacion: agr }) });
+  const d      = await resp.json();
+  if (d.error) { document.getElementById('resultado-tabla-dinamica').innerHTML = `<div class="alerta alerta-error"><svg><use href="#ico-x"/></svg>${d.error}</div>`; return; }
+
+  const encabezados = d.encabezados.map(h => `<th>${h}</th>`).join('');
+  const filasTbl    = d.datos.map(fila => `<tr>${fila.map((v,i) => i===0 ? `<td style="font-weight:600">${v}</td>` : `<td>${typeof v==='number'?v.toLocaleString():v}</td>`).join('')}</tr>`).join('');
+
+  document.getElementById('resultado-tabla-dinamica').innerHTML = `
+    <div id="graf-tabla-dinamica" style="margin-bottom:12px"></div>
+    <div class="contenedor-tabla"><table>
+      <thead><tr>${encabezados}</tr></thead>
+      <tbody>${filasTbl}</tbody>
+    </table></div>`;
+  renderizarGrafica('graf-tabla-dinamica', d.figura);
+}
+
+function notificar(mensaje, tipo) {
+  const mapa = { s:['var(--verde)','ico-ok'], e:['var(--rojo)','ico-x'], i:['var(--acento)','ico-info'], w:['var(--ambar)','ico-aviso'] };
+  const [color, icono] = mapa[tipo] || mapa.i;
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;bottom:20px;right:20px;background:var(--tarjeta);
+    border:1px solid ${color};color:${color};padding:11px 18px;border-radius:8px;
+    font-size:13px;font-weight:500;z-index:9999;max-width:380px;
+    box-shadow:0 4px 24px rgba(0,0,0,.4);
+    animation:deslizarArriba .25s cubic-bezier(.16,1,.3,1);
+    font-family:'Inter',sans-serif;display:flex;align-items:center;gap:8px`;
+  el.innerHTML = `<svg width="14" height="14" style="flex-shrink:0"><use href="#${icono}"/></svg>${mensaje}`;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transform='translateY(6px)'; el.style.transition='all .25s'; setTimeout(()=>el.remove(),300); }, 4200);
+}
+</script>
+</body>
+</html>
